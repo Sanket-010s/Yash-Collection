@@ -1,4 +1,4 @@
-# Custom T-Shirt Brand Platform
+#  Custom T-Shirt Brand Platform
 
 Mobile-first D2C e-commerce platform for buying and designing custom T-shirts.
 
