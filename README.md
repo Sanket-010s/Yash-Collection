@@ -1,71 +1,105 @@
-# Custom T-Shirt Brand Platform
+# Yash Clothing — Custom T-Shirt Brand Platform
 
 Mobile-first D2C e-commerce platform for buying and designing custom T-shirts.
-
-Current working scope: customer store + backend API.  
-Admin panel is intentionally excluded for now.
 
 ## Project Structure
 
 ```
 /
-|-- store/      # Customer website (Next.js 14, JavaScript)
-|-- backend/    # API server (FastAPI, SQLAlchemy)
-`-- Documentation/
+├── store/          # Customer storefront (Next.js 14, JavaScript)
+├── admin/          # Admin panel (React + Vite, Tailwind CSS)
+├── backend/        # API server (FastAPI, SQLAlchemy, async)
+└── Documentation/
 ```
 
-## Implemented Bootstrap (Phase 1 start)
+---
 
-### Backend (`backend/`)
+## Features
 
-- FastAPI app with CORS and health endpoint
-- SQLite/PostgreSQL-ready SQLAlchemy setup
-- Auth routes:
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-  - `GET /api/auth/me`
-- Product routes:
-  - `GET /api/products`
-  - `GET /api/products/{id}`
-- Order routes:
-  - `POST /api/orders` (guest or logged-in)
-  - `GET /api/orders` (logged-in user)
-- Payment routes (development stub):
-  - `POST /api/payment/create`
-  - `POST /api/payment/verify`
-- Invoice route (basic response / placeholder):
-  - `GET /api/invoices/{order_id}`
-- Auto-seeding sample products on first startup
+### Customer Store (`store/`)
 
-### Store (`store/`)
+**Pages**
+- `/` — Home / landing
+- `/shop` — Product listing with browse/filter
+- `/product/[id]` — Product detail
+- `/customize` — T-shirt canvas editor (Fabric.js)
+- `/cart` — Shopping cart
+- `/checkout` — Address + payment flow
+- `/orders` — Order history
+- `/wishlist` — Saved products
+- `/profile` — Account details
+- `/auth/login` & `/auth/register` — Auth
 
-- Next.js App Router setup
-- Pages:
-  - `/`
-  - `/shop`
-  - `/product/[id]`
-  - `/customize`
-  - `/cart`
-  - `/checkout`
-  - `/orders`
-  - `/profile`
-  - `/auth/login`
-  - `/auth/register`
-- Zustand stores:
-  - auth session
-  - cart
-  - design draft
-- Shared components:
-  - `Navbar`
-  - `BottomNav`
-  - `ProductCard`
-  - `CartItem`
-  - `StickyBar`
-  - `CanvasEditor` (Phase 3-ready placeholder)
+**Capabilities**
+- Guest and logged-in checkout
+- Persistent cart via Zustand
+- Wishlist management
+- Design draft saved in state
+- Razorpay payment integration
+- Invoice download after order
+- Responsive with bottom navigation on mobile
+
+---
+
+### Admin Panel (`admin/`)
+
+**Pages**
+- `/` — Dashboard with live stats
+- `/products` — Product listing
+- `/products/add` & `/products/:id/edit` — Add / edit products with variant manager and image uploader
+- `/orders` — Order listing with status/date filters and pagination
+- `/orders/:id` — Full order detail (items, address, payment, invoice)
+- `/invoices` — Invoice listing and download
+- `/coupons` — Coupon management (create, toggle, delete)
+- `/login` — Admin authentication
+
+**Capabilities**
+- JWT-protected routes (admin role required)
+- Dashboard stats: orders today, revenue today, revenue this month, pending orders, low-stock variants
+- Update order status
+- Manage product variants (size, color, stock, price)
+- Cloudinary image upload
+- Mobile-friendly with sidebar + bottom nav
+
+---
+
+### Backend API (`backend/`)
+
+**Auth** — `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+
+**Products** — `GET /api/products`, `GET /api/products/{id}`
+
+**Cart** — `GET /api/cart`, `POST /api/cart`, `DELETE /api/cart/{item_id}`
+
+**Orders** — `POST /api/orders`, `GET /api/orders`, `GET /api/orders/{id}`
+
+**Payment** — `POST /api/payment/create`, `POST /api/payment/verify` (Razorpay)
+
+**Invoices** — `GET /api/invoices/{order_id}` (PDF generation via ReportLab)
+
+**Addresses** — `GET/POST/PUT/DELETE /api/addresses`
+
+**Wishlist** — `GET/POST/DELETE /api/wishlist`
+
+**Designs** — `GET/POST /api/designs` (saved canvas designs)
+
+**Coupons** — `GET/POST/PUT/DELETE /api/coupons` (admin)
+
+**Admin** — `GET /api/admin/orders`, `GET /api/admin/orders/{id}`, `PUT /api/admin/orders/{id}/status`, `GET /api/admin/stats`
+
+**Other**
+- SQLite (dev) / PostgreSQL (prod) via SQLAlchemy async
+- Alembic migrations
+- Auto-seed sample products on first run
+- Cloudinary for image storage
+- Email service (order confirmation)
+- Pricing service (variant-based calculation)
+
+---
 
 ## Local Setup
 
-## 1) Backend
+### Backend
 
 ```bash
 cd backend
@@ -76,10 +110,9 @@ copy .env.example .env
 uvicorn main:app --reload
 ```
 
-Backend runs at `http://localhost:8000`  
-Docs: `http://localhost:8000/docs`
+Runs at `http://localhost:8000` — API docs at `/docs`
 
-## 2) Store
+### Store
 
 ```bash
 cd store
@@ -88,17 +121,31 @@ copy .env.example .env.local
 npm run dev
 ```
 
-Store runs at `http://localhost:3000`
+Runs at `http://localhost:3000`
 
-## Notes
+### Admin
 
-- Payment verification is currently a development stub.
-- Invoice PDF generation is not implemented yet.
-- Admin panel endpoints/UI are not included in this sprint.
+```bash
+cd admin
+npm install
+copy .env.example .env
+npm run dev
+```
+
+Runs at `http://localhost:5173`
+
+---
+
+## Status & Known Limitations
+
+- Payment verification uses Razorpay — requires live keys for real transactions.
+- Invoice PDFs are generated server-side and stored in `backend/tmp_invoices/`.
+- Email sending requires SMTP credentials in `.env`.
+- Admin authentication uses a static admin flag on the user model (no separate admin creation UI yet).
 
 ## Next Build Targets
 
-1. Replace payment stub with full Razorpay flow.
-2. Add address, wishlist, and saved design APIs.
-3. Add proper invoice generation and download flow.
-4. Add tests for auth, products, and order creation.
+1. Admin user management (create/deactivate accounts).
+2. Analytics charts on dashboard.
+3. Push notifications for order status updates.
+4. Tests for auth, products, and order creation.
